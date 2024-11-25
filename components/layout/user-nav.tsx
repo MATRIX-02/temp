@@ -11,10 +11,12 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { selectAuth } from '@/lib/store/features/auth/authSlice';
+import {
+  initiateLogout,
+  selectAuth
+} from '@/lib/store/features/auth/authSlice';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { useRouter } from 'next/navigation';
-import { logout } from '@/lib/store/features/auth/authSlice';
 
 export function UserNav() {
   const router = useRouter();
@@ -42,8 +44,8 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-8 w-8">
+        <Button variant="ghost" className="relative w-8 h-8 rounded-full">
+          <Avatar className="w-8 h-8">
             <AvatarImage src={defaultUser.image} alt={'RN'} />
             <AvatarFallback>{'RN'}</AvatarFallback>
           </Avatar>
@@ -76,9 +78,15 @@ export function UserNav() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onClick={() => {
-            router.push('/');
-            dispatch(logout());
+          onClick={async () => {
+            try {
+              await dispatch(initiateLogout()).unwrap();
+              // The router.push('/') will happen automatically due to
+              // the useEffect watching isAuthenticated state
+            } catch (error) {
+              console.error('Logout failed:', error);
+              // You might want to show an error toast here
+            }
           }}
         >
           Log out
