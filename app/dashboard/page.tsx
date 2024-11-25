@@ -1,3 +1,5 @@
+//This is the Page for the Dashboard
+
 'use client';
 
 import { selectAuth } from '@/lib/store/features/auth/authSlice';

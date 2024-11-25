@@ -1,29 +1,21 @@
 'use client';
 
 import { configureStore } from '@reduxjs/toolkit';
-import { persistReducer, persistStore } from 'redux-persist';
-
+import { authApi } from './features/auth/authApi';
 import authReducer from './features/auth/authSlice';
-
-import sessionStorage from 'redux-persist/lib/storage/session';
-
-const persistConfig = {
-  key: 'root',
-  storage: sessionStorage // Use sessionStorage instead of localStorage
-};
-
-const persistedReducer = persistReducer(persistConfig, authReducer);
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
-      auth: persistedReducer
-    }
+      [authApi.reducerPath]: authApi.reducer,
+      auth: authReducer
+    },
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware().concat(authApi.middleware)
   });
 };
 
 export const store = makeStore();
-export const persistor = persistStore(store);
 
 // Infer the type of makeStore
 export type AppStore = ReturnType<typeof makeStore>;
