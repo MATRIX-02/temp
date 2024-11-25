@@ -1,19 +1,12 @@
 'use client';
 
 import { configureStore } from '@reduxjs/toolkit';
-import rolesReducer from '@/lib/store/roleManagement/rolesSlice';
 import authReducer from './features/auth/authSlice';
-import usersReducer from './userManagement/userSlice';
-
-import objectManagementReducer from './objectManagement/objectSlice';
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
-      auth: authReducer,
-      roles: rolesReducer,
-      users: usersReducer,
-      objectManagement: objectManagementReducer
+      auth: authReducer
     }
   });
 };
