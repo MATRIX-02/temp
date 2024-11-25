@@ -13,7 +13,27 @@ import {
   Shield,
   Database,
   LucideIcon
+
 } from 'lucide-react';
+
+type Submenu = {
+  href: string;
+  label: string;
+  active?: boolean;
+};
+
+type Menu = {
+  href: string;
+  label: string;
+  active: boolean;
+  icon: LucideIcon;
+  submenus?: Submenu[];
+};
+
+type Group = {
+  groupLabel: string;
+  menus: Menu[];
+};
 
 type BaseMenuItem = {
   href: string;
@@ -29,7 +49,7 @@ export type MenuItem = BaseMenuItem & {
 
 export type MenuGroup = {
   groupLabel: string;
-  icon?: LucideIcon; // Optional icon for group
+  icon?: LucideIcon;  // Optional icon for group
   menus: MenuItem[];
 };
 
@@ -44,7 +64,7 @@ export function getMenuList(pathname: string): MenuList {
           href: '/dashboard/overview',
           label: 'Dashboard',
           icon: LayoutGrid,
-          active: pathname.includes('/dashboard')
+          active: pathname.includes('/dashboard'),
         }
       ]
     },
@@ -65,12 +85,12 @@ export function getMenuList(pathname: string): MenuList {
                 {
                   href: '/sales/automation/create',
                   label: 'Create New',
-                  icon: FileEdit
+                  icon: FileEdit,
                 },
                 {
                   href: '/sales/automation/templates',
                   label: 'Templates',
-                  icon: File
+                  icon: File,
                 }
               ]
             },
@@ -85,13 +105,13 @@ export function getMenuList(pathname: string): MenuList {
           href: '/categories',
           label: 'Categories',
           icon: Bookmark,
-          active: pathname.includes('/categories')
+          active: pathname.includes('/categories'),
         },
         {
           href: '/tags',
           label: 'Tags',
           icon: Tag,
-          active: pathname.includes('/tags')
+          active: pathname.includes('/tags'),
         }
       ]
     },
@@ -107,12 +127,12 @@ export function getMenuList(pathname: string): MenuList {
             {
               href: '/users/management',
               label: 'Management',
-              icon: UserCog
+              icon: UserCog,
             },
             {
               href: '/users/roles',
               label: 'Roles',
-              icon: Shield
+              icon: Shield,
             }
           ]
         },
@@ -120,7 +140,7 @@ export function getMenuList(pathname: string): MenuList {
           href: '/account',
           label: 'Account',
           icon: Settings,
-          active: pathname.includes('/account')
+          active: pathname.includes('/account'),
         }
       ]
     }

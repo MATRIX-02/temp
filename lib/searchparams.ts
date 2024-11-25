@@ -1,3 +1,4 @@
+import { stat } from 'fs';
 import {
   createSearchParamsCache,
   createSerializer,

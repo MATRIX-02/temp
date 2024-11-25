@@ -7,9 +7,11 @@ import { store } from '@/lib/store/store';
 
 const StoreProvider = ({ children }: { children: ReactNode }) => {
   return (
+    // <PersistGate loading={null} persistor={persistor}>
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <Provider store={store}>{children}</Provider>
     </ThemeProvider>
+    // </PersistGate>
   );
 };
 

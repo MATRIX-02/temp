@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import { Lato } from 'next/font/google';
 import NextTopLoader from 'nextjs-toploader';
 import './globals.css';
-
 import StoreProvider from './StoreProvider';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
