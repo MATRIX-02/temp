@@ -63,13 +63,13 @@ export const initiateLogin = createAsyncThunk(
   'auth/login',
   async (_, { rejectWithValue }) => {
     try {
-      // window.location.href = `${BASE_URL}/auth/microsoft/login`;
-      // return true;
-      const response = await axiosInstance.get('auth/microsoft/login', {
-        // Ensure credentials are included
-        withCredentials: true
-      });
-      return response.data;
+      window.location.href = `${BASE_URL}/auth/microsoft/login`;
+      return true;
+      // const response = await axiosInstance.get('auth/microsoft/login', {
+      //   // Ensure credentials are included
+      //   withCredentials: true
+      // });
+      // return response.data;
     } catch (error) {
       return rejectWithValue('Failed to initiate login');
     }
