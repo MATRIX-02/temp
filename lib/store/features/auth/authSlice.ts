@@ -1,72 +1,44 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { AuthState } from '@/types/auth';
-import { RootState } from '../../store';
+import type { RootState } from '../../store';
+
+interface AuthState {
+  isAuthenticated: boolean;
+  user: { email: string; name: string, image: string } | null;
+  loading: boolean;
+  error: string | null;
+}
 
 const initialState: AuthState = {
   isAuthenticated: false,
+  user: null,
   loading: false,
   error: null
 };
 
-const BASE_URL = process.env.NEXT_PUBLIC_AUTH;
+const ALLOWED_USERS = [
+  { email: 'mayank@easeworkai.com', name: 'Mayank', image: 'https://media.licdn.com/dms/image/v2/D4E03AQHKw1rZYemfEQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1710833108326?e=1735776000&v=beta&t=hhj0hl-jN8K_TBsVfPD0iiPK7T0grNnycrF5l3wfu4w' },
+  { email: 'ratha@easeworkai.com', name: 'Ratharamanan N', image: 'https://media.licdn.com/dms/image/v2/C4E03AQHws1UIXlTmJQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1549997841676?e=1735776000&v=beta&t=Z5ZHRUXup60gMUp4yDhjqagB6hPrpNzAa9m4Hya6CGk' },
+  { email: 'aryan@easeworkai.com', name: 'Aryan', image: '' },
+  { email: 'siddhant@easeworkai.com', name: 'Siddhant Mahato', image: 'https://media.licdn.com/dms/image/v2/D4D03AQGUDg08P1ORkA/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1728728556771?e=1735776000&v=beta&t=bsZmF-GCaA0_lE-QjJK1iJX4YtsqfWgx5xF0P8S8ndA' },
+  { email: 'rajdeep@easeworkai.com', name: 'Rajdeep Chowdhury', image: 'https://media.licdn.com/dms/image/v2/D4D35AQFAmeDUOAEuRQ/profile-framedphoto-shrink_200_200/profile-framedphoto-shrink_200_200/0/1680422484157?e=1730818800&v=beta&t=zlhCus7vw6PldyAP8kNUCPPWjtUhQwmNee2KRll5lGQ' }
+];
 
-const axiosInstance = axios.create({
-  baseURL: `${BASE_URL}`,
-  withCredentials: true,
-  headers: {
-    'X-Environment':
-      process.env.NODE_ENV === 'development' ? 'local' : 'production'
-  }
-});
-
-axiosInstance.interceptors.request.use(
-  (config) => {
-    config.withCredentials = true;
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
-export const checkAuthStatus = createAsyncThunk(
-  'auth/checkStatus',
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await axios.get(`${BASE_URL}/auth/authenticate`, {
-        withCredentials: true
-      });
-      return response.status === 200;
-    } catch (error) {
-      return rejectWithValue('Authentication failed');
-    }
-  }
-);
-
-export const initiateLogin = createAsyncThunk(
+export const loginUser = createAsyncThunk(
   'auth/login',
-  async (_, { rejectWithValue }) => {
+  async (email: string, { rejectWithValue }) => {
     try {
-      window.location.href = `${BASE_URL}/auth/microsoft/login`;
-      return true;
-    } catch (error) {
-      return rejectWithValue('Failed to initiate login');
-    }
-  }
-);
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-export const initiateLogout = createAsyncThunk(
-  'auth/logout',
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await axios.get(`${BASE_URL}/auth/logout`, {
-        withCredentials: true
-      });
-      if (response.status === 200) {
-        return true;
+      const user = ALLOWED_USERS.find(user => user.email === email);
+
+      if (!user) {
+        throw new Error('Invalid email address');
       }
-      throw new Error('Logout failed');
+      
+      return user;
     } catch (error) {
-      return rejectWithValue('Failed to logout');
+      return rejectWithValue((error as Error).message);
     }
   }
 );
@@ -75,52 +47,31 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    clearError: (state) => {
+    logout: (state) => {
+      state.isAuthenticated = false;
+      state.user = null;
       state.error = null;
     }
   },
   extraReducers: (builder) => {
     builder
-      .addCase(checkAuthStatus.pending, (state) => {
+      .addCase(loginUser.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(checkAuthStatus.fulfilled, (state, action) => {
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.isAuthenticated = true;
+        state.user = action.payload;
         state.loading = false;
-        state.isAuthenticated = action.payload;
-      })
-      .addCase(checkAuthStatus.rejected, (state, action) => {
-        state.loading = false;
-        state.isAuthenticated = false;
-        state.error = action.payload as string;
-      })
-      .addCase(initiateLogin.pending, (state) => {
-        state.loading = true;
         state.error = null;
       })
-      .addCase(initiateLogin.fulfilled, (state) => {
-        state.loading = false;
-      })
-      .addCase(initiateLogin.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-      .addCase(initiateLogout.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(initiateLogout.fulfilled, (state) => {
-        state.loading = false;
-        state.isAuthenticated = false;
-        state.error = null;
-      })
-      .addCase(initiateLogout.rejected, (state, action) => {
+      .addCase(loginUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
   }
 });
 
-export const { clearError } = authSlice.actions;
+export const { logout } = authSlice.actions;
 export const selectAuth = (state: RootState) => state.auth;
 export default authSlice.reducer;

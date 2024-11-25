@@ -30,6 +30,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarProvider,
   SidebarRail,
   SidebarTrigger
@@ -43,6 +45,7 @@ import {
   CreditCard,
   LogOut
 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import * as React from 'react';
@@ -56,11 +59,7 @@ import easeworkaiLogo from '@/public/easeworkai_logo.png';
 import easeworkaiName from '@/public/Easeworkai_name_transparent.png';
 import { NavItem } from '@/types';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
-import {
-  checkAuthStatus,
-  initiateLogout,
-  selectAuth
-} from '@/lib/store/features/auth/authSlice';
+import { logout, selectAuth } from '@/lib/store/features/auth/authSlice';
 
 export const company = {
   name: 'Easework AI',
@@ -78,20 +77,11 @@ export default function AppSidebar({
   const [mounted, setMounted] = React.useState(false);
   const [isCollapsed, setIsCollapsed] = React.useState(false);
   const pathname = usePathname();
-  const { isAuthenticated } = useAppSelector(selectAuth);
+  const { user } = useAppSelector(selectAuth);
 
   React.useEffect(() => {
     setMounted(true);
-    dispatch(checkAuthStatus());
-  }, [dispatch]);
-
-  React.useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/');
-    } else {
-      router.push('/dashboard/overview');
-    }
-  }, [isAuthenticated, router]);
+  }, []);
 
   if (!mounted) {
     return null;
@@ -228,11 +218,15 @@ export default function AppSidebar({
               />
             </div>
             <div className="grid flex-1 w-full text-sm leading-tight text-left">
+              {/* <span className="font-semibold truncate">{company.name}</span> */}
               <Image
                 src={easeworkaiName}
                 alt="Easework AI Logo"
+                // width={100}
+                // height={28}
                 className="h-16 -mt-4 bg-transparent size-10 w-44"
               />
+              {/* <span className="text-xs truncate">{company.plan}</span> */}
             </div>
           </div>
         </SidebarHeader>
@@ -254,18 +248,23 @@ export default function AppSidebar({
                     <Avatar className="w-8 h-8 rounded-lg">
                       <AvatarImage
                         src={
+                          user?.image ||
                           'https://media.licdn.com/dms/image/v2/C4E03AQHws1UIXlTmJQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1549997841676?e=1735776000&v=beta&t=Z5ZHRUXup60gMUp4yDhjqagB6hPrpNzAa9m4Hya6CGk'
                         }
-                        alt={formatName('RN')}
+                        alt={formatName(user?.name) || 'RN'}
                       />
                       <AvatarFallback className="rounded-lg">
-                        {'RN'}
+                        {/* {session?.user?.name?.slice(0, 2)?.toUpperCase() ||
+                          'RN'} */}
+                        {formatName(user?.name) || 'RN'}
                       </AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-sm leading-tight text-left">
-                      <span className="font-semibold truncate">{'Ratha'}</span>
+                      <span className="font-semibold truncate">
+                        {user?.name || 'Ratha'}
+                      </span>
                       <span className="text-xs truncate">
-                        {'ratha@easeworkai.com'}
+                        {user?.email || 'ratha@easeworkai.com'}
                       </span>
                     </div>
                     <ChevronsUpDown className="ml-auto size-4" />
@@ -282,20 +281,23 @@ export default function AppSidebar({
                       <Avatar className="w-8 h-8 rounded-lg">
                         <AvatarImage
                           src={
+                            user?.image ||
                             'https://media.licdn.com/dms/image/v2/C4E03AQHws1UIXlTmJQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1549997841676?e=1735776000&v=beta&t=Z5ZHRUXup60gMUp4yDhjqagB6hPrpNzAa9m4Hya6CGk'
                           }
-                          alt={''}
+                          alt={user?.name || ''}
                         />
                         <AvatarFallback className="rounded-lg">
-                          {'RN'}
+                          {/* {session?.user?.name?.slice(0, 2)?.toUpperCase() ||
+                            'RN'} */}
+                          {formatName(user?.name) || 'RN'}
                         </AvatarFallback>
                       </Avatar>
                       <div className="grid flex-1 text-sm leading-tight text-left">
                         <span className="font-semibold truncate">
-                          {'Ratha'}
+                          {user?.name || 'Ratha'}
                         </span>
                         <span className="text-xs truncate">
-                          {'ratha@easeworkai.com'}
+                          {user?.email || 'ratha@easeworkai.com'}
                         </span>
                       </div>
                     </div>
@@ -317,15 +319,9 @@ export default function AppSidebar({
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    onClick={async () => {
-                      try {
-                        await dispatch(initiateLogout()).unwrap();
-                        // The router.push('/') will happen automatically due to
-                        // the useEffect watching isAuthenticated state
-                      } catch (error) {
-                        console.error('Logout failed:', error);
-                        // You might want to show an error toast here
-                      }
+                    onClick={() => {
+                      router.push('/');
+                      dispatch(logout());
                     }}
                   >
                     <LogOut size={18} className="mr-2" />

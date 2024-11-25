@@ -4,7 +4,7 @@ import { Task } from '@/lib/store';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { cva } from 'class-variance-authority';
-import { GripVertical } from 'lucide-react';
+import { LuGripVertical } from 'react-icons/lu';
 import { Badge } from '@/components/ui/badge';
 
 // export interface Task {
@@ -74,7 +74,7 @@ export function TaskCard({ task, isOverlay }: TaskCardProps) {
           className="-ml-2 h-auto cursor-grab p-1 text-secondary-foreground/50"
         >
           <span className="sr-only">Move task</span>
-          <GripVertical />
+          <LuGripVertical />
         </Button>
         <Badge variant={'outline'} className="ml-auto font-semibold">
           Task

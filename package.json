@@ -68,6 +68,7 @@
     "eslint-config-next": "^14.0.1",
     "export-to-csv": "^1.4.0",
     "framer-motion": "^11.11.10",
+    "immer": "^10.1.1",
     "input": "^1.0.1",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",

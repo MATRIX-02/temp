@@ -1,6 +1,5 @@
 'use client';
-
-import { Clock, MoreVertical } from 'lucide-react';
+import { LuClock, LuMoreVertical } from 'react-icons/lu';
 import { SelectTimePeriod } from './select-time-period';
 
 export function ActionButtons() {
@@ -8,11 +7,11 @@ export function ActionButtons() {
     <div className="flex gap-1">
       <SelectTimePeriod>
         <button className="rounded-full p-1 transition-colors hover:bg-purple-100">
-          <Clock className="size-5 text-gray-600" />
+          <LuClock className="size-5 text-gray-600" />
         </button>
       </SelectTimePeriod>
       <button className="rounded-full p-1 transition-colors hover:bg-purple-100">
-        <MoreVertical className="size-5 text-gray-600" />
+        <LuMoreVertical className="size-5 text-gray-600" />
       </button>
     </div>
   );

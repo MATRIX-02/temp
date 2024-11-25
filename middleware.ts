@@ -1,30 +1,17 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
+// Protecting routes with next-auth
+// https://next-auth.js.org/configuration/nextjs#middleware
+// https://nextjs.org/docs/app/building-your-application/routing/middleware
 
-const BASE_URL = process.env.NEXT_PUBLIC_AUTH;
+import NextAuth from 'next-auth';
+import authConfig from './auth.config';
 
-export function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname;
+const { auth } = NextAuth(authConfig);
 
-  if (path.startsWith('/dashboard')) {
-    try {
-      const response = fetch(`${BASE_URL}/auth/protected`, {
-        headers: {
-          'X-Environment': 'local'
-        }
-      });
-
-      if (!response) {
-        return NextResponse.redirect(new URL('/', request.url));
-      }
-    } catch (error) {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
+export default auth((req) => {
+  if (!req.auth) {
+    const url = req.url.replace(req.nextUrl.pathname, '/');
+    return Response.redirect(url);
   }
+});
 
-  return NextResponse.next();
-}
-
-export const config = {
-  matcher: '/dashboard/:path*'
-};
+export const config = { matcher: ['/dashboard/:path*'] };

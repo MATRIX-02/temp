@@ -3,7 +3,7 @@ import { useDndContext, type UniqueIdentifier } from '@dnd-kit/core';
 import { SortableContext, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { cva } from 'class-variance-authority';
-import { GripVertical } from 'lucide-react';
+import { LuGripVertical } from 'react-icons/lu';
 import { useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
@@ -86,7 +86,7 @@ export function BoardColumn({ column, tasks, isOverlay }: BoardColumnProps) {
           className=" relative -ml-2 h-auto cursor-grab p-1 text-primary/50"
         >
           <span className="sr-only">{`Move column: ${column.title}`}</span>
-          <GripVertical />
+          <LuGripVertical />
         </Button>
         {/* <span className="mr-auto !mt-0"> {column.title}</span> */}
         {/* <Input

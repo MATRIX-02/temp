@@ -2,8 +2,22 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
+import { loginUser, selectAuth } from '@/lib/store/features/auth/authSlice';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from '@/components/ui/form';
 import { ThemeProvider, useTheme } from 'next-themes';
 import {
   DropdownMenu,
@@ -12,12 +26,26 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
 import { MoonIcon, SunIcon } from '@radix-ui/react-icons';
-import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
-import {
-  checkAuthStatus,
-  initiateLogin,
-  selectAuth
-} from '@/lib/store/features/auth/authSlice';
+
+const ALLOWED_EMAILS = [
+  'mayank@easeworkai.com',
+  'ratha@easeworkai.com',
+  'aryan@easeworkai.com',
+  'siddhant@easeworkai.com',
+  'rajdeep@easeworkai.com'
+];
+
+const formSchema = z.object({
+  email: z
+    .string()
+    .email()
+    .endsWith('@easeworkai.com', {
+      message: 'Email must end with @easeworkai.com'
+    })
+    .refine((email) => ALLOWED_EMAILS.includes(email), {
+      message: 'Invalid email address'
+    })
+});
 
 export default function LoginPage() {
   return (
@@ -30,13 +58,16 @@ export default function LoginPage() {
 const LoginPageContent = () => {
   const { theme, setTheme } = useTheme();
   const dispatch = useAppDispatch();
-  const { isAuthenticated, loading, error } = useAppSelector(selectAuth);
+  const { isAuthenticated, error, loading, user } = useAppSelector(selectAuth);
   const router = useRouter();
   const { toast } = useToast();
 
-  useEffect(() => {
-    dispatch(checkAuthStatus());
-  }, [dispatch]);
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: ''
+    }
+  });
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -54,25 +85,19 @@ const LoginPageContent = () => {
     }
   }, [error, toast]);
 
-  const handleLogin = async () => {
-    try {
-      const result = await dispatch(initiateLogin()).unwrap();
-      // The backend will handle the redirect to Microsoft's login page
-      // You might need to handle the response data here if needed
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Failed to initiate login'
-      });
-    }
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    dispatch(loginUser(values.email));
+  };
+
+  const toggleTheme = () => {
+    setTheme(theme === 'light' ? 'dark' : 'light');
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-b from-white to-purple-50 p-4 dark:from-gray-900 dark:to-purple-900">
+    <div className="relative flex items-center justify-center min-h-screen p-4 overflow-hidden bg-gradient-to-b from-white to-purple-50 dark:from-gray-900 dark:to-purple-900">
       <div className="absolute inset-0 overflow-hidden">
         <svg
-          className="absolute h-full w-full"
+          className="absolute w-full h-full"
           viewBox="0 0 100 100"
           preserveAspectRatio="none"
         >
@@ -108,7 +133,7 @@ const LoginPageContent = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="relative z-10 w-full max-w-md space-y-8 rounded-xl bg-white/80 p-6 shadow-xl backdrop-blur-sm dark:bg-gray-800 dark:text-gray-200">
+      <div className="relative z-10 w-full max-w-md p-6 space-y-8 shadow-xl rounded-xl bg-white/80 backdrop-blur-sm dark:bg-gray-800 dark:text-gray-200">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-purple-900 dark:text-purple-400">
             Welcome Back
@@ -120,11 +145,15 @@ const LoginPageContent = () => {
 
         <Button
           className="w-full bg-[#2F2F2F] text-white hover:bg-[#1F1F1F] dark:bg-purple-600 dark:text-gray-200 dark:hover:bg-purple-700"
-          onClick={handleLogin}
-          disabled={loading}
+          onClick={() => {
+            toast({
+              title: 'Microsoft Login',
+              description: 'Microsoft login integration pending'
+            });
+          }}
         >
           <svg
-            className="mr-2 h-5 w-5"
+            className="w-5 h-5 mr-2"
             viewBox="0 0 21 21"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -134,8 +163,49 @@ const LoginPageContent = () => {
             <path d="M10 11H0V21H10V11Z" fill="#00A4EF" />
             <path d="M21 11H11V21H21V11Z" fill="#FFB900" />
           </svg>
-          {loading ? 'Signing in...' : 'Login with Microsoft'}
+          Login with Microsoft
         </Button>
+
+        <div className="relative">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t border-gray-300 dark:border-gray-600" />
+          </div>
+          <div className="relative flex justify-center text-sm">
+            <span className="px-2 text-gray-500 bg-white dark:bg-gray-800 dark:text-gray-400">
+              Or continue with
+            </span>
+          </div>
+        </div>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="email"
+                      placeholder="yourname@easeworkai.com"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button
+              type="submit"
+              className="w-full bg-purple-600 hover:bg-purple-700 dark:bg-purple-500 dark:hover:bg-purple-600"
+              disabled={loading}
+            >
+              {loading ? 'Signing in...' : 'Test Login'}
+            </Button>
+          </form>
+        </Form>
       </div>
     </div>
   );

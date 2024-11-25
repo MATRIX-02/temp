@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Star, MapPin } from 'lucide-react';
+import { LuStar, LuMapPin } from 'react-icons/lu';
 import { ActionButtons } from './actions/action-buttons';
 
 interface PerformanceType {
@@ -243,7 +243,7 @@ const SupplierPerformanceCard = () => {
               </div>
               <div className="mt-2 text-sm text-gray-600">
                 <span className="mr-1">Easework Rating Range:</span>
-                <Star className="mb-1 inline h-4 w-4 text-yellow-400" />
+                <LuStar className="mb-1 inline h-4 w-4 text-yellow-400" />
                 <span className="ml-1">
                   {performanceTypes[selectedPerformance].ratingRange}
                 </span>
@@ -265,7 +265,7 @@ const SupplierPerformanceCard = () => {
                       {supplier.name}
                     </span>
                     <span className="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs text-gray-600">
-                      <MapPin className="mr-1 h-3 w-3" />
+                      <LuMapPin className="mr-1 h-3 w-3" />
                       {supplier.location}
                     </span>
                   </div>
@@ -274,7 +274,7 @@ const SupplierPerformanceCard = () => {
                       supplier.rating
                     )}`}
                   >
-                    <Star className="mr-1 h-3 w-3" />
+                    <LuStar className="mr-1 h-3 w-3" />
                     {supplier.rating.toFixed(1)}
                   </div>
                 </div>
