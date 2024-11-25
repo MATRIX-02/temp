@@ -58,7 +58,7 @@ export const initiateLogout = createAsyncThunk(
   'auth/logout',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post('/auth/logout');
+      const response = await axios.get(`${BASE_URL}/auth/logout`);
       if (response.status === 200) {
         return true;
       }
