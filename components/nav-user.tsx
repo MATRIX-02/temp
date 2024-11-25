@@ -28,6 +28,7 @@ import {
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
+const BASE_URL = process.env.NEXT_PUBLIC_AUTH;
 export function NavUser({
   user
 }: {
@@ -104,9 +105,9 @@ export function NavUser({
             <DropdownMenuItem
               onClick={() => {
                 axios
-                  .post('/logout')
+                  .get(`${BASE_URL}/auth/logout`)
                   .then(() => {
-                    router.push('/login');
+                    router.push('/');
                   })
                   .catch((error) => {
                     console.error('Logout failed:', error);
