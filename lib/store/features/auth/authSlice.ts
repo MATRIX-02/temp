@@ -42,36 +42,29 @@ export const checkAuthStatus = createAsyncThunk(
   }
 );
 
-// export const checkAuthStatus = createAsyncThunk(
-//   'auth/checkStatus',
-//   async (_, { rejectWithValue }) => {
-//     try {
-//       const response = await axios.get(`${BASE_URL}/auth/protected`, {
-//         headers: {
-//           'X-Environment': 'local'
-//         },
-//         withCredentials: true
-//       });
-//       return response.status === 200;
-//     } catch (error) {
-//       return rejectWithValue('Authentication failed');
-//     }
-//   }
-// );
-
 export const initiateLogin = createAsyncThunk(
   'auth/login',
   async (_, { rejectWithValue }) => {
     try {
       window.location.href = `${BASE_URL}/auth/microsoft/login`;
       return true;
-      // const response = await axiosInstance.get('auth/microsoft/login', {
-      //   // Ensure credentials are included
-      //   withCredentials: true
-      // });
-      // return response.data;
     } catch (error) {
       return rejectWithValue('Failed to initiate login');
+    }
+  }
+);
+
+export const initiateLogout = createAsyncThunk(
+  'auth/logout',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.post('/auth/logout');
+      if (response.status === 200) {
+        return true;
+      }
+      throw new Error('Logout failed');
+    } catch (error) {
+      return rejectWithValue('Failed to logout');
     }
   }
 );
@@ -80,10 +73,6 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    logout: (state) => {
-      state.isAuthenticated = false;
-      state.error = null;
-    },
     clearError: (state) => {
       state.error = null;
     }
@@ -113,10 +102,23 @@ const authSlice = createSlice({
       .addCase(initiateLogin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(initiateLogout.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(initiateLogout.fulfilled, (state) => {
+        state.loading = false;
+        state.isAuthenticated = false;
+        state.error = null;
+      })
+      .addCase(initiateLogout.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   }
 });
 
-export const { logout, clearError } = authSlice.actions;
+export const { clearError } = authSlice.actions;
 export const selectAuth = (state: RootState) => state.auth;
 export default authSlice.reducer;

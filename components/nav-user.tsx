@@ -25,10 +25,7 @@ import {
   SidebarMenuItem,
   useSidebar
 } from '@/components/ui/sidebar';
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
 
-const BASE_URL = process.env.NEXT_PUBLIC_AUTH;
 export function NavUser({
   user
 }: {
@@ -38,7 +35,6 @@ export function NavUser({
     avatar: string;
   };
 }) {
-  const router = useRouter();
   const { isMobile } = useSidebar();
 
   return (
@@ -102,18 +98,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => {
-                axios
-                  .get(`${BASE_URL}/auth/logout`)
-                  .then(() => {
-                    router.push('/');
-                  })
-                  .catch((error) => {
-                    console.error('Logout failed:', error);
-                  });
-              }}
-            >
+            <DropdownMenuItem>
               <LogOut />
               Log out
             </DropdownMenuItem>
