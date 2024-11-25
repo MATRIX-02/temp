@@ -14,20 +14,25 @@ import { useRouter } from 'next/navigation';
 const StoreProvider = ({ children }: { children: ReactNode }) => {
   const router = useRouter();
   const dispatch = useAppDispatch();
-
-  const { isAuthenticated } = useAppSelector(selectAuth);
+  const { isAuthenticated, loading } = useAppSelector(selectAuth);
 
   useEffect(() => {
     dispatch(checkAuthStatus());
   }, [dispatch, isAuthenticated]);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/');
-    } else {
-      router.push('/dashboard/overview');
+    if (!loading) {
+      if (!isAuthenticated) {
+        router.push('/');
+      } else {
+        router.push('/dashboard/overview');
+      }
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, loading, router]);
+
+  if (loading) {
+    return <div>Loading...</div>; // Or your loading component
+  }
 
   return (
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>

@@ -2,31 +2,16 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { AuthState } from '@/types/auth';
 import { RootState } from '../../store';
+import { cookies } from 'next/headers';
 
 const initialState: AuthState = {
   isAuthenticated: false,
   loading: false,
-  error: null
+  error: null,
+  user: null
 };
 
 const BASE_URL = process.env.NEXT_PUBLIC_AUTH;
-
-const axiosInstance = axios.create({
-  baseURL: `${BASE_URL}`,
-  withCredentials: true,
-  headers: {
-    'X-Environment':
-      process.env.NODE_ENV === 'development' ? 'local' : 'production'
-  }
-});
-
-axiosInstance.interceptors.request.use(
-  (config) => {
-    config.withCredentials = true;
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
 
 export const checkAuthStatus = createAsyncThunk(
   'auth/checkStatus',
@@ -35,9 +20,15 @@ export const checkAuthStatus = createAsyncThunk(
       const response = await axios.get(`${BASE_URL}/auth/authenticate`, {
         withCredentials: true
       });
-      return response.status === 200;
+      if (response.status === 200) {
+        return response.data;
+      }
+      throw new Error('Authentication check failed');
     } catch (error) {
-      return rejectWithValue('Authentication failed');
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        return rejectWithValue('Session expired');
+      }
+      return rejectWithValue('Authentication check failed');
     }
   }
 );
@@ -46,6 +37,8 @@ export const initiateLogin = createAsyncThunk(
   'auth/login',
   async (_, { rejectWithValue }) => {
     try {
+      // Store the intended destination before redirect
+      sessionStorage.setItem('returnUrl', window.location.pathname);
       window.location.href = `${BASE_URL}/auth/microsoft/login`;
       return true;
     } catch (error) {
@@ -56,10 +49,17 @@ export const initiateLogin = createAsyncThunk(
 
 export const initiateLogout = createAsyncThunk(
   'auth/logout',
-  async (_, { rejectWithValue }) => {
+  async (_, { rejectWithValue, dispatch }) => {
     try {
-      const response = await axios.get(`${BASE_URL}/auth/logout`);
+      const response = await axios.get(`${BASE_URL}/auth/logout`, {
+        withCredentials: true
+      });
       if (response.status === 200) {
+        // Clear the specific session cookie
+        document.cookie =
+          'session_token=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+        // Clear the auth state
+        dispatch(clearAuthState());
         return true;
       }
       throw new Error('Logout failed');
@@ -75,6 +75,12 @@ const authSlice = createSlice({
   reducers: {
     clearError: (state) => {
       state.error = null;
+    },
+    clearAuthState: (state) => {
+      state.isAuthenticated = false;
+      state.user = null;
+      state.error = null;
+      state.loading = false;
     }
   },
   extraReducers: (builder) => {
@@ -85,22 +91,13 @@ const authSlice = createSlice({
       })
       .addCase(checkAuthStatus.fulfilled, (state, action) => {
         state.loading = false;
-        state.isAuthenticated = action.payload;
+        state.isAuthenticated = true;
+        state.user = action.payload;
       })
       .addCase(checkAuthStatus.rejected, (state, action) => {
         state.loading = false;
         state.isAuthenticated = false;
-        state.error = action.payload as string;
-      })
-      .addCase(initiateLogin.pending, (state) => {
-        state.loading = true;
-        state.error = null;
-      })
-      .addCase(initiateLogin.fulfilled, (state) => {
-        state.loading = false;
-      })
-      .addCase(initiateLogin.rejected, (state, action) => {
-        state.loading = false;
+        state.user = null;
         state.error = action.payload as string;
       })
       .addCase(initiateLogout.pending, (state) => {
@@ -110,6 +107,7 @@ const authSlice = createSlice({
       .addCase(initiateLogout.fulfilled, (state) => {
         state.loading = false;
         state.isAuthenticated = false;
+        state.user = null;
         state.error = null;
       })
       .addCase(initiateLogout.rejected, (state, action) => {
@@ -119,6 +117,6 @@ const authSlice = createSlice({
   }
 });
 
-export const { clearError } = authSlice.actions;
+export const { clearError, clearAuthState } = authSlice.actions;
 export const selectAuth = (state: RootState) => state.auth;
 export default authSlice.reducer;
