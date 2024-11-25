@@ -34,14 +34,26 @@ export const checkAuthStatus = createAsyncThunk(
   }
 );
 
-export const initiateLogin = createAsyncThunk(
-  'auth/login',
+export const initiateMicrosoftLogin = createAsyncThunk(
+  'auth/microsoftLogin',
   async (_, { rejectWithValue }) => {
     try {
       window.location.href = `${BASE_URL}/auth/microsoft/login`;
       return true;
     } catch (error) {
-      return rejectWithValue('Failed to initiate login');
+      return rejectWithValue('Failed to initiate Microsoft login');
+    }
+  }
+);
+
+export const initiateGoogleLogin = createAsyncThunk(
+  'auth/googleLogin',
+  async (_, { rejectWithValue }) => {
+    try {
+      window.location.href = `${BASE_URL}/auth/google/login`;
+      return true;
+    } catch (error) {
+      return rejectWithValue('Failed to initiate Google login');
     }
   }
 );
@@ -88,14 +100,25 @@ const authSlice = createSlice({
         state.error = action.payload as string;
         state.user = null;
       })
-      .addCase(initiateLogin.pending, (state) => {
+      .addCase(initiateMicrosoftLogin.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(initiateLogin.fulfilled, (state) => {
+      .addCase(initiateMicrosoftLogin.fulfilled, (state) => {
         state.loading = false;
       })
-      .addCase(initiateLogin.rejected, (state, action) => {
+      .addCase(initiateMicrosoftLogin.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(initiateGoogleLogin.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(initiateGoogleLogin.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(initiateGoogleLogin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
