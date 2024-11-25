@@ -1,41 +1,33 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import { AuthState } from '@/types/auth';
+import { AuthState, User } from '@/types/auth';
 import { RootState } from '../../store';
 
 const initialState: AuthState = {
   isAuthenticated: false,
   loading: false,
-  error: null
+  error: null,
+  user: null
 };
 
 const BASE_URL = process.env.NEXT_PUBLIC_AUTH;
 
-const axiosInstance = axios.create({
-  baseURL: `${BASE_URL}`,
-  withCredentials: true,
-  headers: {
-    'X-Environment':
-      process.env.NODE_ENV === 'development' ? 'local' : 'production'
-  }
-});
-
-axiosInstance.interceptors.request.use(
-  (config) => {
-    config.withCredentials = true;
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+interface AuthResponse {
+  message: string;
+  user: User;
+}
 
 export const checkAuthStatus = createAsyncThunk(
   'auth/checkStatus',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${BASE_URL}/auth/authenticate`, {
-        withCredentials: true
-      });
-      return response.status === 200;
+      const response = await axios.get<AuthResponse>(
+        `${BASE_URL}/auth/authenticate`,
+        {
+          withCredentials: true
+        }
+      );
+      return response.data;
     } catch (error) {
       return rejectWithValue('Authentication failed');
     }
@@ -87,12 +79,14 @@ const authSlice = createSlice({
       })
       .addCase(checkAuthStatus.fulfilled, (state, action) => {
         state.loading = false;
-        state.isAuthenticated = action.payload;
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
       })
       .addCase(checkAuthStatus.rejected, (state, action) => {
         state.loading = false;
         state.isAuthenticated = false;
         state.error = action.payload as string;
+        state.user = null;
       })
       .addCase(initiateLogin.pending, (state) => {
         state.loading = true;
@@ -113,6 +107,7 @@ const authSlice = createSlice({
         state.loading = false;
         state.isAuthenticated = false;
         state.error = null;
+        state.user = null;
       })
       .addCase(initiateLogout.rejected, (state, action) => {
         state.loading = false;
