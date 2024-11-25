@@ -55,8 +55,12 @@ import Image from 'next/image';
 import easeworkaiLogo from '@/public/easeworkai_logo.png';
 import easeworkaiName from '@/public/Easeworkai_name_transparent.png';
 import { NavItem } from '@/types';
-import { useAppDispatch } from '@/lib/store/hooks';
-import { initiateLogout } from '@/lib/store/features/auth/authSlice';
+import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
+import {
+  checkAuthStatus,
+  initiateLogout,
+  selectAuth
+} from '@/lib/store/features/auth/authSlice';
 
 export const company = {
   name: 'Easework AI',
@@ -69,9 +73,29 @@ export default function AppSidebar({
 }: {
   children: React.ReactNode;
 }) {
+  const router = useRouter();
   const dispatch = useAppDispatch();
+  const [mounted, setMounted] = React.useState(false);
   const [isCollapsed, setIsCollapsed] = React.useState(false);
   const pathname = usePathname();
+  const { isAuthenticated } = useAppSelector(selectAuth);
+
+  React.useEffect(() => {
+    setMounted(true);
+    dispatch(checkAuthStatus());
+  }, [dispatch]);
+
+  React.useEffect(() => {
+    if (!isAuthenticated) {
+      router.push('/');
+    } else {
+      router.push('/dashboard/overview');
+    }
+  }, [isAuthenticated, router]);
+
+  if (!mounted) {
+    return null;
+  }
 
   const handleSidebarToggle = () => {
     setIsCollapsed(!isCollapsed);
