@@ -32,7 +32,9 @@ export const checkAuthStatus = createAsyncThunk(
   'auth/checkStatus',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${BASE_URL}/auth/authenticate`);
+      const response = await axios.get(`${BASE_URL}/auth/authenticate`, {
+        withCredentials: true
+      });
       return response.status === 200;
     } catch (error) {
       return rejectWithValue('Authentication failed');
