@@ -16,18 +16,10 @@ import {
   selectAuth
 } from '@/lib/store/features/auth/authSlice';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
-import { useRouter } from 'next/navigation';
 
 export function UserNav() {
-  const router = useRouter();
   const dispatch = useAppDispatch();
-
-  const defaultUser = {
-    name: 'Ratha',
-    email: 'ratha@easeworkai.com',
-    image:
-      'https://media.licdn.com/dms/image/v2/C4E03AQHws1UIXlTmJQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1549997841676?e=1735776000&v=beta&t=Z5ZHRUXup60gMUp4yDhjqagB6hPrpNzAa9m4Hya6CGk'
-  };
+  const { user } = useAppSelector(selectAuth);
 
   const formatName = (name: string | undefined) => {
     if (!name) return '';
@@ -44,19 +36,21 @@ export function UserNav() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative w-8 h-8 rounded-full">
-          <Avatar className="w-8 h-8">
-            <AvatarImage src={defaultUser.image} alt={'RN'} />
-            <AvatarFallback>{'RN'}</AvatarFallback>
+        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+          <Avatar className="h-8 w-8">
+            <AvatarImage src="" alt={formatName(user?.name)} />
+            <AvatarFallback> {formatName(user?.name)}</AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">{'Ratha'}</p>
+            <p className="text-sm font-medium leading-none">
+              {user?.name || 'User'}
+            </p>
             <p className="text-xs leading-none text-muted-foreground">
-              {'ratha@easeworkai.com'}
+              {user?.email || ''}
             </p>
           </div>
         </DropdownMenuLabel>

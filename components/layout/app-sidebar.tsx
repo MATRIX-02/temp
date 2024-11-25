@@ -251,20 +251,17 @@ export default function AppSidebar({
                     className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                   >
                     <Avatar className="h-8 w-8 rounded-lg">
-                      <AvatarImage
-                        src={
-                          'https://media.licdn.com/dms/image/v2/C4E03AQHws1UIXlTmJQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1549997841676?e=1735776000&v=beta&t=Z5ZHRUXup60gMUp4yDhjqagB6hPrpNzAa9m4Hya6CGk'
-                        }
-                        alt={formatName(user?.name)}
-                      />
+                      <AvatarImage src={''} alt={formatName(user?.name)} />
                       <AvatarFallback className="rounded-lg">
                         {formatName(user?.name)}
                       </AvatarFallback>
                     </Avatar>
                     <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">{'Ratha'}</span>
+                      <span className="truncate font-semibold">
+                        {user?.name || 'User'}
+                      </span>
                       <span className="truncate text-xs">
-                        {'ratha@easeworkai.com'}
+                        {user?.email || ''}
                       </span>
                     </div>
                     <ChevronsUpDown className="ml-auto size-4" />
@@ -279,22 +276,17 @@ export default function AppSidebar({
                   <DropdownMenuLabel className="p-0 font-normal">
                     <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                       <Avatar className="h-8 w-8 rounded-lg">
-                        <AvatarImage
-                          src={
-                            'https://media.licdn.com/dms/image/v2/C4E03AQHws1UIXlTmJQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1549997841676?e=1735776000&v=beta&t=Z5ZHRUXup60gMUp4yDhjqagB6hPrpNzAa9m4Hya6CGk'
-                          }
-                          alt={''}
-                        />
+                        <AvatarImage src={''} alt={''} />
                         <AvatarFallback className="rounded-lg">
-                          {'RN'}
+                          {formatName(user?.name)}
                         </AvatarFallback>
                       </Avatar>
                       <div className="grid flex-1 text-left text-sm leading-tight">
                         <span className="truncate font-semibold">
-                          {'Ratha'}
+                          {user?.name || 'User'}
                         </span>
                         <span className="truncate text-xs">
-                          {'ratha@easeworkai.com'}
+                          {user?.email || ''}
                         </span>
                       </div>
                     </div>
