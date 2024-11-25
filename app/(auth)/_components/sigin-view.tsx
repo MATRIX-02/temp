@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCheckAuthQuery } from '@/lib/store/features/auth/authApi';
 import { useEffect } from 'react';
 
-const BASE_URL = process.env.NEXT_AUTH_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_AUTH;
 
 export default function SignInView() {
   const router = useRouter();

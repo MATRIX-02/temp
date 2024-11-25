@@ -6,7 +6,7 @@ import {
 } from '../store/features/auth/authApi';
 import { useRouter } from 'next/navigation';
 
-const BASE_URL = process.env.NEXT_AUTH_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_AUTH;
 
 export const useAuth = () => {
   const router = useRouter();
