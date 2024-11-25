@@ -30,8 +30,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarMenuSub,
-  SidebarMenuSubButton,
-  SidebarMenuSubItem,
   SidebarProvider,
   SidebarRail,
   SidebarTrigger
@@ -45,7 +43,7 @@ import {
   CreditCard,
   LogOut
 } from 'lucide-react';
-import { useSession } from 'next-auth/react';
+
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import * as React from 'react';
@@ -60,6 +58,7 @@ import easeworkaiName from '@/public/Easeworkai_name_transparent.png';
 import { NavItem } from '@/types';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import { logout, selectAuth } from '@/lib/store/features/auth/authSlice';
+import { useLogoutMutation } from '@/lib/store/features/auth/authApi';
 
 export const company = {
   name: 'Easework AI',
@@ -72,8 +71,10 @@ export default function AppSidebar({
 }: {
   children: React.ReactNode;
 }) {
-  const router = useRouter();
+  const [logoutMutation] = useLogoutMutation();
   const dispatch = useAppDispatch();
+  const router = useRouter();
+
   const [mounted, setMounted] = React.useState(false);
   const [isCollapsed, setIsCollapsed] = React.useState(false);
   const pathname = usePathname();
@@ -82,6 +83,16 @@ export default function AppSidebar({
   React.useEffect(() => {
     setMounted(true);
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await logoutMutation().unwrap();
+      dispatch(logout());
+      router.push('/');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   if (!mounted) {
     return null;
@@ -316,12 +327,7 @@ export default function AppSidebar({
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    onClick={() => {
-                      router.push('/');
-                      dispatch(logout());
-                    }}
-                  >
+                  <DropdownMenuItem onClick={handleLogout}>
                     <LogOut size={18} className="mr-2" />
                     Log out
                   </DropdownMenuItem>
