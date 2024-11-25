@@ -58,7 +58,7 @@ import { NavItem } from '@/types';
 import { useAppDispatch, useAppSelector } from '@/lib/store/hooks';
 import {
   checkAuthStatus,
-  logout,
+  initiateLogout,
   selectAuth
 } from '@/lib/store/features/auth/authSlice';
 
@@ -219,19 +219,19 @@ export default function AppSidebar({
       <Sidebar collapsible="icon">
         <SidebarHeader>
           <div className="flex gap-2 py-2 text-sidebar-accent-foreground ">
-            <div className="flex aspect-square size-9 items-center justify-center rounded-lg text-sidebar-primary-foreground">
+            <div className="flex items-center justify-center rounded-lg aspect-square size-9 text-sidebar-primary-foreground">
               <Image
                 src={company.logo}
                 alt="Easework AI Logo"
                 width={40}
-                className="h-auto w-full bg-transparent "
+                className="w-full h-auto bg-transparent "
               />
             </div>
-            <div className="grid w-full flex-1 text-left text-sm leading-tight">
+            <div className="grid flex-1 w-full text-sm leading-tight text-left">
               <Image
                 src={easeworkaiName}
                 alt="Easework AI Logo"
-                className="-mt-4 size-10 h-16 w-44 bg-transparent"
+                className="h-16 -mt-4 bg-transparent size-10 w-44"
               />
             </div>
           </div>
@@ -251,7 +251,7 @@ export default function AppSidebar({
                     size="lg"
                     className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                   >
-                    <Avatar className="h-8 w-8 rounded-lg">
+                    <Avatar className="w-8 h-8 rounded-lg">
                       <AvatarImage
                         src={
                           'https://media.licdn.com/dms/image/v2/C4E03AQHws1UIXlTmJQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1549997841676?e=1735776000&v=beta&t=Z5ZHRUXup60gMUp4yDhjqagB6hPrpNzAa9m4Hya6CGk'
@@ -262,9 +262,9 @@ export default function AppSidebar({
                         {'RN'}
                       </AvatarFallback>
                     </Avatar>
-                    <div className="grid flex-1 text-left text-sm leading-tight">
-                      <span className="truncate font-semibold">{'Ratha'}</span>
-                      <span className="truncate text-xs">
+                    <div className="grid flex-1 text-sm leading-tight text-left">
+                      <span className="font-semibold truncate">{'Ratha'}</span>
+                      <span className="text-xs truncate">
                         {'ratha@easeworkai.com'}
                       </span>
                     </div>
@@ -279,7 +279,7 @@ export default function AppSidebar({
                 >
                   <DropdownMenuLabel className="p-0 font-normal">
                     <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                      <Avatar className="h-8 w-8 rounded-lg">
+                      <Avatar className="w-8 h-8 rounded-lg">
                         <AvatarImage
                           src={
                             'https://media.licdn.com/dms/image/v2/C4E03AQHws1UIXlTmJQ/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1549997841676?e=1735776000&v=beta&t=Z5ZHRUXup60gMUp4yDhjqagB6hPrpNzAa9m4Hya6CGk'
@@ -290,11 +290,11 @@ export default function AppSidebar({
                           {'RN'}
                         </AvatarFallback>
                       </Avatar>
-                      <div className="grid flex-1 text-left text-sm leading-tight">
-                        <span className="truncate font-semibold">
+                      <div className="grid flex-1 text-sm leading-tight text-left">
+                        <span className="font-semibold truncate">
                           {'Ratha'}
                         </span>
-                        <span className="truncate text-xs">
+                        <span className="text-xs truncate">
                           {'ratha@easeworkai.com'}
                         </span>
                       </div>
@@ -317,9 +317,15 @@ export default function AppSidebar({
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
-                    onClick={() => {
-                      router.push('/');
-                      dispatch(logout());
+                    onClick={async () => {
+                      try {
+                        await dispatch(initiateLogout()).unwrap();
+                        // The router.push('/') will happen automatically due to
+                        // the useEffect watching isAuthenticated state
+                      } catch (error) {
+                        console.error('Logout failed:', error);
+                        // You might want to show an error toast here
+                      }
                     }}
                   >
                     <LogOut size={18} className="mr-2" />
@@ -337,12 +343,12 @@ export default function AppSidebar({
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger
               onClick={handleSidebarToggle}
-              className="scale-70 -ml-1"
+              className="-ml-1 scale-70"
             />
-            <Separator orientation="vertical" className="mr-2 h-4" />
+            <Separator orientation="vertical" className="h-4 mr-2" />
             <Breadcrumbs />
           </div>
-          <div className="hidden w-1/3 items-center gap-2 px-4 md:flex">
+          <div className="items-center hidden w-1/3 gap-2 px-4 md:flex">
             <SearchInput />
           </div>
           <div className="flex items-center gap-2 px-4">
