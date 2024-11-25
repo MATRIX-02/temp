@@ -78,27 +78,36 @@ export default function AppSidebar({
   const dispatch = useAppDispatch();
   const [mounted, setMounted] = React.useState(false);
   const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const [authChecked, setAuthChecked] = React.useState(false);
   const pathname = usePathname();
   const { isAuthenticated, loading, user } = useAppSelector(selectAuth);
 
   React.useEffect(() => {
     setMounted(true);
-    dispatch(checkAuthStatus());
+    const checkAuth = async () => {
+      await dispatch(checkAuthStatus());
+      setAuthChecked(true);
+    };
+    checkAuth();
   }, [dispatch]);
 
   React.useEffect(() => {
-    if (!isAuthenticated && !loading) {
-      router.push('/');
+    if (authChecked && !isAuthenticated && !loading) {
+      router.replace('/');
     }
-  }, [isAuthenticated, loading, router]);
+  }, [isAuthenticated, loading, authChecked, router]);
 
-  if (loading || !mounted) {
+  if (loading || !mounted || !authChecked) {
     return <LoadingScreen />;
   }
 
   const handleSidebarToggle = () => {
     setIsCollapsed(!isCollapsed);
   };
+
+  if (authChecked && !isAuthenticated) {
+    return null;
+  }
 
   const formatName = (name: string | undefined) => {
     if (!name) return '';
