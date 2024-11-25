@@ -67,7 +67,7 @@ export const initiateLogin = createAsyncThunk(
       // return true;
       const response = await axiosInstance.get('auth/microsoft/login', {
         // Ensure credentials are included
-        // withCredentials: true
+        withCredentials: true
       });
       return response.data;
     } catch (error) {
